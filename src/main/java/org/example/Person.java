@@ -1,5 +1,8 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Person {
 
     // design pattern - Factory design Pattern
@@ -8,6 +11,9 @@ public class Person {
     private final String role;
     private int age;
     private String email;
+    private String timetable;
+    private String school;
+    private int experience;
 
     public Person(String surname, String name, String role) {
         this.surname = surname;
@@ -38,9 +44,26 @@ public class Person {
         this.email = email;
     }
 
-    // factory class
-    public static class PersonFactory {
+    public String getTimetable() {
+        return timetable;
+    }
+    public void setTimetable(String timetable) {
+        this.timetable = timetable;
+    }
 
+    public String getSchool() {
+        return school;
+    }
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+    public void setExperience(int experience) {
+        this.experience = experience;
     }
 
 }
+

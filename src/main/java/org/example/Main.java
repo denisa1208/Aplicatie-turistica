@@ -1,10 +1,12 @@
 package org.example;
 
 import java.io.*;
+import java.lang.reflect.Member;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,48 +26,94 @@ public class Main {
             String file1 = args[1];
             file1 = file1 + ".in";
             System.out.println("ana");
-
+            Database database = Database.getInstance();
+            Set<Museum> museumsToAdd = new LinkedHashSet<>();
             try (BufferedReader br = new BufferedReader(new FileReader(file1))) {
                 String line;
-                Database database = Database.getInstance();
                 while ((line = br.readLine()) != null) {
                     String[] parts = line.split("\\|");
-                    System.out.println(line);
+                    //System.out.println(line + "ex2");
                     if (parts[0].equals("ADD MUSEUM")) {
 
                         MuseumCommands command = new MuseumCommands();
+                        Museum museum_print;
+                        Museum museum_exception = null;
+                        long code = Long.parseLong(parts[1]);
                         try {
-                            command.addMuseum(line, database);
+                            command.addMuseum(line, database, museumsToAdd);
+                            museum_print = new Museum.MuseumBuilder(parts[2], code, 0, null).build();
+                            museumsToAdd.add(museum_print);
+                            //System.out.println(museum_print.getCode() + ": " + museum_print.getName());
 
                         } catch (Exception e) {
-                            Museum museum = new Museum.MuseumBuilder(line, 0, 0, null).build();
-                            database.addMuseum(museum);
+                            museum_exception = new Museum.MuseumBuilder(line, 0, 0, null).build();
+                            database.addMuseum(museum_exception);
+                            museum_print = new Museum.MuseumBuilder(parts[2], 0, 0, null)
+                                    .setEmail(line).build();
+                            museumsToAdd.add(museum_print);
+                           // System.out.println(e.getMessage());
+                        }
+
+                        System.out.println(museum_print.getCode() + ": " + museum_print.getName());
+
+                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(args[1] + ".out"))) {
+
+                            database.addMuseums(museumsToAdd);
+                            for (Museum museum : museumsToAdd) {
+                                if (museum.getCode() != 0) {
+                                    writer.write(museum.getCode() + ": " + museum.getName());
+                                } else {
+                                    writer.write("Exception: Data is broken. ## (" + museum.getEmail() + ")");
+                                }
+                                writer.newLine();
+                            }
+
+
+                        } catch (IOException e) {
                             System.out.println(e.getMessage());
                         }
+                       // database.resetDatabase();
+                    } else if (parts[0].equals("ADD MEMBER")) {
+                        String surname = parts[1];
+                        String name = parts[2];
+                        String profession = parts[3];
+                        String age = parts[4];
+                        String email = parts[5];
+                        String school = parts[6];
+                        String year_study_or_experience = parts[7];
+                        int year_study_or_exp_parse = Integer.valueOf(year_study_or_experience);
+                        String role = parts[8];
+                        String museum_code = parts[9];
+                        String timetable = parts[10];
+                        GroupCommand command = new GroupCommand();
+
+                       command.addMember(line, database);
+
+                    Set<Group> groups = database.getGroups();
+                    //System.out.println(groups.size() + " groups");
 
 
+                    } else if (parts[0].equals("ADD GUIDE")) {
+                        GroupCommand command = new GroupCommand();
+
+                        command.addGuide(line, database);
+                    } else if(parts[0].equals("REMOVE MEMBER")) {
+                        GroupCommand command = new GroupCommand();
+
+                        command.removeMember(line, database);
                     }
 
                 }
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(args[1] + ".out"))) {
 
-                    // Iterăm prin muzeele din baza de date și le adăugăm în fișier
-                    Set<Museum> museums = database.getMuseums();
-                    for (Museum museum : museums) {
-                        if (museum.getCode() != 0) {
-                            writer.write( museum.getCode() + ": " +  museum.getName());
-                        } else {
-                            writer.write("Exception: Data is broken. ## (" + museum.getName() + ")");
-                        }
-
-                        writer.newLine();  // adăugăm o linie nouă după fiecare muzeu
+                Set<Group> groups = database.getGroups();
+                for (Group group : groups) {
+                    for (Person person : group.getMembers()) {
+                        System.out.println(person.getName() + " " + person.getEmail());
                     }
-                    System.out.println("Muzeele au fost adăugate în fișierul path_file.out.");
-                } catch (IOException e) {
-                    System.out.println("A apărut o eroare la scrierea în fișier: " + e.getMessage());
                 }
-                database.resetDatabase();
 
+
+            database = null;
             } catch (IOException e) {
                 System.err.println("Error reading file: " + e.getMessage());
             }

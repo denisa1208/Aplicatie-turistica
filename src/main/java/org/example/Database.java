@@ -24,12 +24,24 @@ public class Database {
         return database;
     }
 
+
+
     public static void resetDatabase() {
-        database = null;
+       database = null;
     }
 
     public void addMuseum(Museum museum) {
-        museums.add(museum);
+        int ok = 0;
+        for (Museum m : museums) {
+            if (museum.getCode() == m.getCode()) {
+                ok = 1;
+                break;
+            }
+        }
+
+        if (ok == 0) {
+            museums.add(museum);
+        }
     }
 
     public void addMuseums(Set<Museum> museums) {

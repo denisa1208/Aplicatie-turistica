@@ -3,11 +3,12 @@
     import java.util.ArrayList;
     import java.util.List;
 
-    public abstract class Professor extends Person implements Subject{
+    public class Professor extends Person implements Subject{
 
         // design pattern - Observer
         int experience;
         String school;
+        String timetable;
         private List<Observer> observers;
 
 
@@ -27,6 +28,14 @@
 
         public String getSchool() {
             return school;
+        }
+
+        public String getTimetable() {
+            return timetable;
+        }
+
+        public void setTimetable(String timetable) {
+            this.timetable = timetable;
         }
 
         public void setSchool(String school) {

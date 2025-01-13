@@ -1,13 +1,14 @@
 package org.example;
 
-import org.example.Location;
-
-import javax.xml.crypto.Data;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class Museum {
     // design pattern - builder pattern
-
     private final String name;
     private final long code;
     private final long supervisorCode;
@@ -179,7 +180,7 @@ public class Museum {
 }
 
 class MuseumCommands {
-    public void addMuseum(String line, Database database) {
+    public void addMuseum(String line, Database database, Set<Museum> museumsToAdd) {
         Museum museum = null;
             String[] parts = line.split("\\|");
             if (parts.length > 0) {
@@ -241,17 +242,21 @@ class MuseumCommands {
                             .setPhoneNumber(phone)
                             .setError(0).build();
                     System.out.println(museum.getName() + "muzeul ahahah");
+                    Integer code_group = Integer.valueOf(code_string);
 
+                    Group group = new Group(null, null, code_group);
+                    Set<Museum> museums = database.getMuseums();
+                    if (!museums.contains(museum)) {
+                        database.addMuseum(museum);
+                    }
 
-                    database.addMuseum(museum);
+                    database.addGroup(group);
 
                 } catch (Exception e) {
                     System.out.println("ana are mere");
                     throw new RuntimeException(e);
                 }
-
-
             }
-
     }
+
 }
