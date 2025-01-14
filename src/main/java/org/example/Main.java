@@ -86,21 +86,22 @@ public class Main {
                         String museum_code = parts[9];
                         String timetable = parts[10];
                         GroupCommand command = new GroupCommand();
-
-                       command.addMember(line, database);
+                        String namefile = args[1] + ".out";
+                        command.addMember(line, database, namefile);
 
                     Set<Group> groups = database.getGroups();
                     //System.out.println(groups.size() + " groups");
 
 
                     } else if (parts[0].equals("ADD GUIDE")) {
+                        String namefile = args[1] + ".out";
                         GroupCommand command = new GroupCommand();
 
-                        command.addGuide(line, database);
+                        command.addGuide(line, database, namefile);
                     } else if(parts[0].equals("REMOVE MEMBER")) {
                         GroupCommand command = new GroupCommand();
-
-                        command.removeMember(line, database);
+                        String namefile = args[1] + ".out";
+                        command.removeMember(line, database, namefile);
                     }
 
                 }
