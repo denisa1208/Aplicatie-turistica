@@ -66,6 +66,7 @@ jobs:
         setup-command: ''
         timeout: 10
         max-score: 5
+        command: ''
     - name: Museum Notificator 07
       id: museum-notificator-07
       uses: classroom-resources/autograding-command-grader@v1
