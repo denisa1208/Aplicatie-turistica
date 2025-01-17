@@ -125,6 +125,6 @@ public class Main {
            //processMultipleFiles(pathType, args[1], args[2], args[3]);
             System.out.println("Path: "+ pathType + " " + args[1] +" "+ " " + args[2] + " " + args[3]);
         }
-    }
+    } // ana
 
 }
