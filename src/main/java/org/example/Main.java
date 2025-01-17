@@ -87,7 +87,7 @@ public class Main {
                         String timetable = parts[10];
                         GroupCommand command = new GroupCommand();
                         String namefile = args[1] + ".out";
-                        command.addMember(line, database, namefile);
+                        command.addMember(line, database, namefile  );
 
                     Set<Group> groups = database.getGroups();
                     //System.out.println(groups.size() + " groups");
