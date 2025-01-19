@@ -49,7 +49,7 @@ public class Group {
 }
 
 class GroupCommand {
-    public void addMember(String line, Database database, String namefile) {
+    public void addMember(String line, Database database, String namefile) throws GroupNotExistsException, GroupThresholdException{
         String[] parts = line.split("\\|");
         String surname = parts[1];
         String name = parts[2];
@@ -70,6 +70,15 @@ class GroupCommand {
         String timetable = parts[10];
         Set<Group> groups = database.getGroups();
         Group group_found = null;
+
+        String name_ocupation = null;
+        if (profession.equals("profesor")) {
+            name_ocupation = "experience";
+        } else {
+            name_ocupation = "studyYear";
+        }
+
+
         int ok = 0;
         if (!groups.isEmpty()) {
             for (Group group : groups) {
@@ -81,11 +90,21 @@ class GroupCommand {
             }
         }
 
-        if (ok == 0) {
-            // grupul trebuie creat
-            group_found = new Group(null, null, museum_code_int);
-            database.addGroup(group_found);
+
+        if (group_found == null || group_found.getGuide() == null) {
+
+            String output = museum_code + " ## "+ timetable + " ## GroupNotExistsException: Group does not exist. ## (" + "new member: " + "surname=" + surname + ", " + "name=" + name + ", role=" + role + ", age=" + age + ", email=" + email + ", school=" +school + ", " + name_ocupation + "=" + year_study_or_experience + ")";
+            writeToFile(namefile, output);
+            throw new GroupNotExistsException("GroupNotExistsException: Group does not exist.");
+
         }
+
+        if (group_found != null && group_found.members.size() == 10) {
+            String output = museum_code + " ## "+ timetable + " ## GroupThresholdException: Group cannot have more than 10 members. ## (" + "new member: " + "surname=" + surname + ", " + "name=" + name + ", role=" + role + ", age=" + age + ", email=" + email + ", school=" +school + ", " + name_ocupation + "=" + year_study_or_experience + ")";
+            writeToFile(namefile, output);
+            throw new GroupThresholdException("GroupThresholdException: Group cannot have more than 10 members.");
+        }
+        //System.out.println(group_found.getGuide().getName() + "test 5");
 
         Person person =  PersonFactory.createPerson(surname, name, profession, school, year_study_or_exp_parse, timetable);
         person.setEmail(email);
@@ -99,12 +118,7 @@ class GroupCommand {
             group_found.setMembers(new ArrayList<>());
         }
         group_found.getMembers().add(person);
-        String name_ocupation = null;
-        if (profession.equals("profesor")) {
-            name_ocupation = "experience";
-        } else {
-            name_ocupation = "studyYear";
-        }
+
        // System.out.println("name" + name + " si " + email);
         String output = museum_code + " ## " + person.getTimetable() + " ## " + "new member: " + "surname=" + person.getSurname() + ", " + "name=" + person.getName() + ", role=" + role + ", age=" + person.getAge() + ", email=" + person.getEmail() + ", school=" + person.getSchool() + ", " + name_ocupation + "=" + person.getExperience();
         writeToFile(namefile, output);
@@ -189,6 +203,7 @@ class GroupCommand {
             guide.setSchool(school);
             group_found.setGuide(guide);
             group_found.list_guides.add(guide);
+            group_found.timetable = timetable;
 
             String output = museum_code + " ## " + timetable + " ## " + "new guide: " + "surname=" + guide.getSurname() + ", " + "name=" + guide.getName() + ", role=" + role + ", age=" + guide.getAge() + ", email=" + guide.getEmail() + ", school=" + guide.getSchool() + ", " + name_ocupation +"=" + guide.getExperience();
             writeToFile(namefile, output);
@@ -197,7 +212,7 @@ class GroupCommand {
 
     }
 
-    public void removeMember(String line, Database database, String namefile) {
+    public void removeMember(String line, Database database, String namefile) throws GroupNotExistsException, PersonNoExistsException{
         String[] parts = line.split("\\|");
         String surname = parts[1];
         String name = parts[2];
@@ -239,22 +254,48 @@ class GroupCommand {
             for (Person person : group_found.getMembers()) {
                 if (person.getName().equals(name) && person.getSurname().equals(surname)) {
                     remove_person = person;
-                    Professor new_guide = new Professor(null, null, null);
-                    group_found.setGuide(new_guide);
+                    //Professor new_guide = new Professor(null, null, null);
+                    //group_found.setGuide(new_guide);
                     break;
                 }
             }
+            int ok_remove = 0;
             String name_ocupation = null;
             if (profession.equals("profesor")) {
                 name_ocupation = "experience";
             } else {
                 name_ocupation = "studyYear";
             }
+            String output = null;
             if (remove_person != null) {
                 group_found.getMembers().remove(remove_person);
-                String output = museum_code + " ## " + timetable + " ## " + "removed member: " + "surname=" + remove_person.getSurname() + ", " + "name=" + remove_person.getName() + ", role=" + role + ", age=" + remove_person.getAge() + ", email=" + remove_person.getEmail() + ", school=" + remove_person.getSchool() + ", " + name_ocupation +"=" + remove_person.getExperience();
-                writeToFile(namefile, output);
+                ok_remove = 1;
+                output = museum_code + " ## " + timetable + " ## " + "removed member: " + "surname=" + remove_person.getSurname() + ", " + "name=" + remove_person.getName() + ", role=" + role + ", age=" + remove_person.getAge() + ", email=" + remove_person.getEmail() + ", school=" + remove_person.getSchool() + ", " + name_ocupation +"=" + remove_person.getExperience();
+
             }
+
+            int group_exist = 0;
+            for (Group group : groups) {
+                if (group.timetable.equals(timetable)) {
+                    group_exist = 1;
+                    break;
+                }
+            }
+
+            if (group_exist == 0) {
+                output = museum_code + " ## " + timetable + " ## GroupNotExistsException: Group does not exist. ## (removed member: "  + "surname=" + surname + ", " + "name=" + name + ", role=" + role + ", age=" + age + ", email=" + email + ", school=" + school + ", " + name_ocupation +"=" + year_study_or_experience + ")";
+                writeToFile(namefile, output);
+                throw new GroupNotExistsException("Group does not exist. ##");
+            }
+            if (ok_remove == 0) {
+                output = museum_code + " ## " + timetable + " ## PersonNotExistsException: Person was not found in the group. ## (" +  "surname=" + surname + ", " + "name=" + name + ", role=" + role + ", age=" + age + ", email=" + email + ", school=" + school + ", " + name_ocupation +"=" + year_study_or_experience + ")";
+                writeToFile(namefile, output);
+                throw new PersonNoExistsException("PersonNotExistsException: Person was not found in the group.");
+
+            }
+
+            writeToFile(namefile, output);
+
         }
     }
 
@@ -316,7 +357,7 @@ class GroupCommand {
         }
     }
 
-    public void findGuide(String line, Database database, String namefile) {
+    public void findGuide(String line, Database database, String namefile) throws PersonNoExistsException {
         String[] parts = line.split("\\|");
         String surname = parts[1];
         String name = parts[2];
@@ -327,7 +368,7 @@ class GroupCommand {
         if (!parts[5].isEmpty()) {
             email = parts[5];
         }
-        System.out.println(parts[5] + "ana");
+        //System.out.println(parts[5] + "ana");
         String school = parts[6];
         String year_study_or_experience = parts[7];
         int year_study_experience_parse = Integer.valueOf(year_study_or_experience);
@@ -376,16 +417,17 @@ class GroupCommand {
         } else {
             String output = null;
             if (email == null) {
-                System.out.println(email + " ana are mere");
+               // System.out.println(email + " ana are mere");
                 output = museum_code + " ## " + timetable + " ## " + "guide not exists: " + "surname=" + surname + ", " + "name=" + name + ", role=" + role + ", age=" + age + ", email=null" + ", school=" + school + ", " + name_ocupation +"=" + year_study_or_experience;
             } else {
                 output = museum_code + " ## " + timetable + " ## " + "guide not exists: " + "surname=" + surname + ", " + "name=" + name + ", role=" + role + ", age=" + age + ", email=" + email + ", school=" + school + ", " + name_ocupation +"=" + year_study_or_experience;
             }
             writeToFile(namefile, output);
+            throw new PersonNoExistsException("PersonNotExistsException: Person was not found in the group.");
         }
     }
 
-    public void findMember(String line, Database database, String namefile) {
+    public void findMember(String line, Database database, String namefile) throws PersonNoExistsException{
         String[] parts = line.split("\\|");
         String surname = parts[1];
         String name = parts[2];
@@ -446,6 +488,7 @@ class GroupCommand {
                 output = museum_code + " ## " + timetable + " ## " + "member not exists: " + "surname=" + surname + ", " + "name=" + name + ", role=" + role + ", age=" + age + ", email=" + email + ", school=" + school + ", " + name_ocupation +"=" + year_study_or_experience;
             }
             writeToFile(namefile, output);
+            throw new PersonNoExistsException("PersonNotExistsException: Person was not found in the group.");
         }
     }
 

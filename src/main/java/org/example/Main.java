@@ -87,7 +87,12 @@ public class Main {
                         String timetable = parts[10];
                         GroupCommand command = new GroupCommand();
                         String namefile = args[1] + ".out";
-                        command.addMember(line, database, namefile);
+                        try {
+                            command.addMember(line, database, namefile);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+
 
                     Set<Group> groups = database.getGroups();
                     //System.out.println(groups.size() + " groups");
@@ -105,7 +110,12 @@ public class Main {
                     } else if(parts[0].equals("REMOVE MEMBER")) {
                         GroupCommand command = new GroupCommand();
                         String namefile = args[1] + ".out";
-                        command.removeMember(line, database, namefile);
+                        try {
+                            command.removeMember(line, database, namefile);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+
                     } else if (parts[0].equals("REMOVE GUIDE")) {
                         GroupCommand command = new GroupCommand();
                         String namefile = args[1] + ".out";
@@ -113,12 +123,24 @@ public class Main {
                     } else if (parts[0].equals("FIND GUIDE")) {
                         GroupCommand command = new GroupCommand();
                         String namefile = args[1] + ".out";
-                        command.findGuide(line, database, namefile);
+                        try {
+                            command.findGuide(line, database, namefile);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+
                     } else if (parts[0].equals("FIND MEMBER")) {
                         GroupCommand command = new GroupCommand();
                         String namefile = args[1] + ".out";
-                        command.findMember(line, database, namefile);
+                        try {
+                            command.findMember(line, database, namefile);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+
                     }
+
+                    //database = null;
 
                 }
 
@@ -130,10 +152,12 @@ public class Main {
                 }
 
 
-            database = null;
+            //database = null;
             } catch (IOException e) {
                 System.err.println("Error reading file: " + e.getMessage());
             }
+
+            database.resetDatabase();
 
 
         } else if (args.length == 4) {

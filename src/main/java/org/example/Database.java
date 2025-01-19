@@ -25,9 +25,9 @@ public class Database {
     }
 
 
-
-    public static void resetDatabase() {
-       database = null;
+    public void resetDatabase() {
+        museums.clear();
+        groups.clear();
     }
 
     public void addMuseum(Museum museum) {

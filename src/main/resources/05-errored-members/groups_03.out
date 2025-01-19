@@ -1,6 +1,6 @@
-7300203 ## 10-12 ## new member: surname=Ioana, name=Georgescu, role=vizitator, age=38, email=null, school=Universitatea Politehnica, experience=5
-7300203 ## 10-12 ## new member: surname=George, name=Stoica, role=vizitator, age=19, email=george.stoica@example.com, school=Liceul National, studyYear=1
-7300203 ## 13-15 ## GuideExistsException: Guide already exists. ## (new guide: surname=Simona, name=Stan, role=ghid, age=33, email=simona.stan@domain.ro, school=Academia de Studii Economice, experience=4)
+7300203 ## 10-12 ## GroupNotExistsException: Group does not exist. ## (new member: surname=Ioana, name=Georgescu, role=vizitator, age=38, email=null, school=Universitatea Politehnica, experience=5)
+7300203 ## 10-12 ## GroupNotExistsException: Group does not exist. ## (new member: surname=George, name=Stoica, role=vizitator, age=19, email=george.stoica@example.com, school=Liceul National, studyYear=1)
+7300203 ## 13-15 ## new guide: surname=Elena, name=Radu, role=ghid, age=50, email=elena.radu@domain.ro, school=Universitatea de Vest, experience=15
 7300203 ## 13-15 ## new member: surname=Mihai, name=Nistor, role=vizitator, age=21, email=null, school=Liceul National, studyYear=3
 7300203 ## 13-15 ## new member: surname=Vlad, name=Diaconescu, role=vizitator, age=23, email=vlad.diaconescu@example.com, school=Universitatea de Vest, studyYear=4
 7300203 ## 13-15 ## new member: surname=Roxana, name=Popescu, role=vizitator, age=18, email=roxana.popescu@example.com, school=Liceul National, studyYear=1
@@ -11,8 +11,9 @@
 7300203 ## 13-15 ## new member: surname=Victor, name=Radu, role=vizitator, age=37, email=victor.radu@domain.ro, school=Universitatea Bucuresti, experience=6
 7300203 ## 13-15 ## new member: surname=Oana, name=Nistor, role=vizitator, age=19, email=oana.nistor@example.com, school=Liceul National, studyYear=1
 7300203 ## 13-15 ## new member: surname=Daniel, name=Marin, role=vizitator, age=55, email=null, school=Universitatea Politehnica, experience=15
-7300203 ## 13-15 ## new member: surname=Adrian, name=Diaconescu, role=vizitator, age=21, email=adrian.diaconescu@example.com, school=Universitatea de Vest, studyYear=3
-7300203 ## 13-15 ## new member: surname=Raluca, name=Popescu, role=vizitator, age=22, email=raluca.popescu@example.com, school=Academia de Studii Economice, studyYear=3
-7300203 ## 13-15 ## new member: surname=Gabriel, name=Ionescu, role=vizitator, age=39, email=gabriel.ionescu@email.org, school=Universitatea Politehnica, experience=8
+7300203 ## 13-15 ## GroupThresholdException: Group cannot have more than 10 members. ## (new member: surname=Adrian, name=Diaconescu, role=vizitator, age=21, email=adrian.diaconescu@example.com, school=Universitatea de Vest, studyYear=3)
+7300203 ## 13-15 ## GroupThresholdException: Group cannot have more than 10 members. ## (new member: surname=Raluca, name=Popescu, role=vizitator, age=22, email=raluca.popescu@example.com, school=Academia de Studii Economice, studyYear=3)
+7300203 ## 13-15 ## GroupThresholdException: Group cannot have more than 10 members. ## (new member: surname=Gabriel, name=Ionescu, role=vizitator, age=39, email=gabriel.ionescu@email.org, school=Universitatea Politehnica, experience=8)
 7300203 ## 13-15 ## removed member: surname=Victor, name=Radu, role=vizitator, age=37, email=victor.radu@domain.ro, school=Universitatea Bucuresti, experience=6
-7300203 ## 13-15 ## removed member: surname=Victor, name=Radu, role=vizitator, age=37, email=victor.radu@domain.ro, school=Universitatea Bucuresti, experience=6
+7300203 ## 13-15 ## PersonNotExistsException: Person was not found in the group. ## (surname=Victor, name=Radu, role=vizitator, age=37, email=victor.radu@domain.ro, school=Universitatea Bucuresti, experience=6)
+7300203 ## 11-13 ## GroupNotExistsException: Group does not exist. ## (removed member: surname=Victor, name=Radu, role=vizitator, age=37, email=victor.radu@domain.ro, school=Universitatea Bucuresti, experience=6)
