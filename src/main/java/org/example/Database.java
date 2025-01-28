@@ -26,7 +26,6 @@ public class Database {
 
 
     public void resetDatabase() {
-        museums.clear();
         groups.clear();
     }
 

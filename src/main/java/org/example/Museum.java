@@ -3,16 +3,19 @@ package org.example;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
-public class Museum {
+public class Museum implements Subject{
     // design pattern - builder pattern
     private final String name;
     private final long code;
     private final long supervisorCode;
     private final Location location;
+    private final List<Observer> observers;
 
     // campuri optionale
     private final Person manager;
@@ -41,8 +44,25 @@ public class Museum {
         this.profile = builder.profile;
         this.category = builder.category;
         this.error = builder.error;
+        this.observers = new ArrayList<>();
     }
 
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(String message, BufferedWriter writer) {
+        for (Observer observer : observers) {
+            observer.update("Message: " + this.getName() + " (" + this.code + ") " + message, writer);
+        }
+    }
 
 
     public static class MuseumBuilder {
@@ -241,7 +261,6 @@ class MuseumCommands {
                             .setUrl(url)
                             .setPhoneNumber(phone)
                             .setError(0).build();
-                    System.out.println(museum.getName() + "muzeul ahahah");
                     Integer code_group = Integer.valueOf(code_string);
 
                     Group group = new Group(null, null, code_group);
@@ -253,7 +272,6 @@ class MuseumCommands {
                     database.addGroup(group);
 
                 } catch (Exception e) {
-                    System.out.println("ana are mere");
                     throw new RuntimeException(e);
                 }
             }

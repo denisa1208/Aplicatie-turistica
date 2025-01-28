@@ -1,20 +1,22 @@
     package org.example;
 
+    import java.io.BufferedWriter;
+    import java.io.FileWriter;
+    import java.io.IOException;
     import java.util.ArrayList;
     import java.util.List;
 
-    public class Professor extends Person implements Subject{
+    public class Professor extends Person implements Observer {
 
         // design pattern - Observer
         int experience;
         String school;
         String timetable;
-        private List<Observer> observers;
+
 
 
         public Professor(String surname, String name, String role) {
             super(surname, name, role);
-            this.observers = new ArrayList<>();
         }
 
         public int getExperience() {
@@ -23,7 +25,7 @@
 
         public void setExperience(int experience) {
             this.experience = experience;
-            notifyObservers();
+
         }
 
         public String getSchool() {
@@ -40,26 +42,22 @@
 
         public void setSchool(String school) {
             this.school = school;
-            notifyObservers();
-        }
-
-
-        @Override
-        public void addObserver(Observer observer) {
-            observers.add(observer);
 
         }
 
-        @Override
-        public void removeObserver(Observer observer) {
-            observers.remove(observer);
 
-        }
+
+
 
         @Override
-        public void notifyObservers() {
-            for (Observer observer : observers) {
-                observer.update("ana are mere");
+        public void update(String message, BufferedWriter writer) {
+            try {
+                writer.write("To: " + getEmail() + " ## " + message);
+                writer.newLine();
+            } catch (IOException e) {
+                System.err.println("Error writing to file: " + e.getMessage());
             }
+
+            System.out.println(message + " test 7");
         }
     }

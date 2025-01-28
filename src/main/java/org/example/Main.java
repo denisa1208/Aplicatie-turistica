@@ -1,13 +1,7 @@
 package org.example;
 
 import java.io.*;
-import java.lang.reflect.Member;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Main {
@@ -17,153 +11,161 @@ public class Main {
             return;
         }
 
-        String pathType = args[0];
-
+        PathTypes pathType;
+        try {
+            pathType = PathTypes.valueOf(args[0].toUpperCase());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid pathType. Allowed values: GROUPS, LISTENER, MUSEUMS");
+            return;
+        }
 
         if (args.length == 2) {
-            System.out.println("Path: " + pathType + " " + args[1]);
+            processFile(pathType, args[1]);
+        } else if (args.length == 4) {
+            System.out.println(args[1] + " + add event listener");
+            processAllFiles(args[1], args[2], args[3]);
+        }
+    }
 
-            String file1 = args[1];
-            file1 = file1 + ".in";
-            System.out.println("ana");
-            Database database = Database.getInstance();
-            Set<Museum> museumsToAdd = new LinkedHashSet<>();
-            try (BufferedReader br = new BufferedReader(new FileReader(file1))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] parts = line.split("\\|");
-                    //System.out.println(line + "ex2");
-                    if (parts[0].equals("ADD MUSEUM")) {
+    private static void processFile(PathTypes pathType, String filePath) throws IOException {
+        String inputFile = filePath + ".in";
+        String outputFile = filePath + ".out";
+        System.out.println("Processing file: " + inputFile + " for type: " + pathType.getValue());
 
-                        MuseumCommands command = new MuseumCommands();
-                        Museum museum_print;
-                        Museum museum_exception = null;
-                        long code = Long.parseLong(parts[1]);
-                        try {
-                            command.addMuseum(line, database, museumsToAdd);
-                            museum_print = new Museum.MuseumBuilder(parts[2], code, 0, null).build();
-                            museumsToAdd.add(museum_print);
-                            //System.out.println(museum_print.getCode() + ": " + museum_print.getName());
+        Database database = Database.getInstance();
+        Set<Museum> museumsToAdd = new LinkedHashSet<>();
 
-                        } catch (Exception e) {
-                            museum_exception = new Museum.MuseumBuilder(line, 0, 0, null).build();
-                            database.addMuseum(museum_exception);
-                            museum_print = new Museum.MuseumBuilder(parts[2], 0, 0, null)
-                                    .setEmail(line).build();
-                            museumsToAdd.add(museum_print);
-                           // System.out.println(e.getMessage());
-                        }
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
 
-                        System.out.println(museum_print.getCode() + ": " + museum_print.getName());
-
-                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(args[1] + ".out"))) {
-
-                            database.addMuseums(museumsToAdd);
-                            for (Museum museum : museumsToAdd) {
-                                if (museum.getCode() != 0) {
-                                    writer.write(museum.getCode() + ": " + museum.getName());
-                                } else {
-                                    writer.write("Exception: Data is broken. ## (" + museum.getEmail() + ")");
-                                }
-                                writer.newLine();
-                            }
-
-
-                        } catch (IOException e) {
-                            System.out.println(e.getMessage());
-                        }
-                       // database.resetDatabase();
-                    } else if (parts[0].equals("ADD MEMBER")) {
-                        String surname = parts[1];
-                        String name = parts[2];
-                        String profession = parts[3];
-                        String age = parts[4];
-                        String email = parts[5];
-                        String school = parts[6];
-                        String year_study_or_experience = parts[7];
-                        int year_study_or_exp_parse = Integer.valueOf(year_study_or_experience);
-                        String role = parts[8];
-                        String museum_code = parts[9];
-                        String timetable = parts[10];
-                        GroupCommand command = new GroupCommand();
-                        String namefile = args[1] + ".out";
-                        try {
-                            command.addMember(line, database, namefile);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-
-
-                    Set<Group> groups = database.getGroups();
-                    //System.out.println(groups.size() + " groups");
-
-
-                    } else if (parts[0].equals("ADD GUIDE")) {
-                        String namefile = args[1] + ".out";
-                        GroupCommand command = new GroupCommand();
-                        try {
-                            command.addGuide(line, database, namefile);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-
-                    } else if(parts[0].equals("REMOVE MEMBER")) {
-                        GroupCommand command = new GroupCommand();
-                        String namefile = args[1] + ".out";
-                        try {
-                            command.removeMember(line, database, namefile);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-
-                    } else if (parts[0].equals("REMOVE GUIDE")) {
-                        GroupCommand command = new GroupCommand();
-                        String namefile = args[1] + ".out";
-                        command.removeGuide(line, database, namefile);
-                    } else if (parts[0].equals("FIND GUIDE")) {
-                        GroupCommand command = new GroupCommand();
-                        String namefile = args[1] + ".out";
-                        try {
-                            command.findGuide(line, database, namefile);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-
-                    } else if (parts[0].equals("FIND MEMBER")) {
-                        GroupCommand command = new GroupCommand();
-                        String namefile = args[1] + ".out";
-                        try {
-                            command.findMember(line, database, namefile);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-
-                    }
-
-                    //database = null;
-
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                switch (pathType) {
+                    case MUSEUMS -> processMuseumCommand(line, parts, database, museumsToAdd);
+                    case GROUPS -> processGroupCommand(line, parts, database, writer, outputFile);
+                    case LISTENER -> processListenerCommand(line, parts, database, writer);
                 }
-
-                Set<Group> groups = database.getGroups();
-                for (Group group : groups) {
-                    for (Person person : group.getMembers()) {
-                        System.out.println(person.getName() + " " + person.getEmail());
-                    }
-                }
-
-
-            //database = null;
-            } catch (IOException e) {
-                System.err.println("Error reading file: " + e.getMessage());
             }
 
-            database.resetDatabase();
-
-
-        } else if (args.length == 4) {
-           //processMultipleFiles(pathType, args[1], args[2], args[3]);
-            System.out.println("Path: "+ pathType + " " + args[1] +" "+ " " + args[2] + " " + args[3]);
+            // Write all museums to the output file
+            for (Museum museum : museumsToAdd) {
+                if (museum.getCode() != 0) {
+                    writer.write(museum.getCode() + ": " + museum.getName());
+                } else {
+                    writer.write("Exception: Data is broken. ## (" + museum.getEmail() + ")");
+                }
+                writer.newLine();
+            }
         }
-    } // ana
+        database.resetDatabase();
+    }
 
+    private static void processAllFiles(String museumsPath, String groupsPath, String eventsPath) throws IOException {
+        processFile(PathTypes.MUSEUMS, museumsPath);
+        processFile(PathTypes.GROUPS, groupsPath);
+        processFile(PathTypes.LISTENER, eventsPath);
+    }
+
+    private static void processMuseumCommand(String line, String[] parts, Database database, Set<Museum> museumsToAdd) {
+        if (parts[0].equals("ADD MUSEUM")) {
+
+            MuseumCommands command = new MuseumCommands();
+            Museum museum_print;
+            Museum museum_exception = null;
+            long code = Long.parseLong(parts[1]);
+            try {
+                command.addMuseum(line, database, museumsToAdd);
+                museum_print = new Museum.MuseumBuilder(parts[2], code, 0, null).build();
+                museumsToAdd.add(museum_print);
+
+            } catch (Exception e) {
+                museum_exception = new Museum.MuseumBuilder(line, 0, 0, null).build();
+                database.addMuseum(museum_exception);
+                museum_print = new Museum.MuseumBuilder(parts[2], 0, 0, null)
+                        .setEmail(line).build();
+                museumsToAdd.add(museum_print);
+            }
+
+            System.out.println(museum_print.getCode() + ": " + museum_print.getName());
+        }
+    }
+
+    private static void processGroupCommand(String line, String[] parts, Database database, BufferedWriter writer, String namefile) throws IOException {
+        if (parts[0].equals("ADD MEMBER")) {
+            GroupCommand command = new GroupCommand();
+            try {
+                System.out.println(namefile + " AAAA");
+                command.addMember(line, database, namefile);
+
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        } else if (parts[0].equals("ADD GUIDE")) {
+            GroupCommand command = new GroupCommand();
+            try {
+                command.addGuide(line, database, namefile);
+
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        } else if (parts[0].equals("REMOVE MEMBER")) {
+            GroupCommand command = new GroupCommand();
+            try {
+                command.removeMember(line, database, namefile);
+
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        } else if (parts[0].equals("FIND GUIDE")) {
+            GroupCommand command = new GroupCommand();
+            try {
+                command.findGuide(line, database, namefile);
+
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        } else if (parts[0].equals("REMOVE GUIDE")) {
+            GroupCommand command = new GroupCommand();
+            try {
+                command.removeGuide(line, database, namefile);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        } else if (parts[0].equals("FIND MEMBER")) {
+            GroupCommand command = new GroupCommand();
+            try {
+                command.findMember(line, database, namefile);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static void processListenerCommand(String line, String[] parts, Database database, BufferedWriter writer) throws IOException {
+        if (parts[0].equals("ADD EVENT")) {
+           String filename = "events_01.out";
+            System.out.println(writer + " ana are mere");
+            try {
+                Long codeParse = Long.parseLong(parts[1]);
+                String message = parts[2];
+                Museum museum = null;
+                for (Museum m : database.getMuseums()) {
+                    if (m.getCode() == codeParse) {
+                        museum = m;
+                        break;
+                    }
+                }
+                if (museum != null) {
+                    museum.notifyObservers(message, writer);
+
+                } else {
+                    writer.write("Museum not found for code: " + codeParse);
+                    writer.newLine();
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 }
