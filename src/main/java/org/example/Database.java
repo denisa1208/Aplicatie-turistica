@@ -44,11 +44,11 @@ public class Database {
     }
 
     public void addMuseums(Set<Museum> museums) {
-        museums.addAll(museums);
+        this.museums.addAll(museums);
     }
 
     public void  addGroup(Group group) {
-        groups.add(group);
+        this.groups.add(group);
 
     }
 

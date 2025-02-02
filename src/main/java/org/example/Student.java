@@ -19,7 +19,4 @@ public class Student extends Person {
     public void setStudyYear(int studyYear) {
         this.studyYear = studyYear;
     }
-
-
-
 }

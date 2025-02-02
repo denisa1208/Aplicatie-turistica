@@ -1,16 +1,12 @@
 package org.example;
 
 import java.io.*;
+import java.net.http.WebSocket;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        if (args.length != 2 && args.length != 4) {
-            System.out.println("Usage: java Main <pathType> <file1> [<file2> <file3>]");
-            return;
-        }
-
         PathTypes pathType;
         try {
             pathType = PathTypes.valueOf(args[0].toUpperCase());
@@ -30,7 +26,6 @@ public class Main {
     private static void processFile(PathTypes pathType, String filePath) throws IOException {
         String inputFile = filePath + ".in";
         String outputFile = filePath + ".out";
-        System.out.println("Processing file: " + inputFile + " for type: " + pathType.getValue());
 
         Database database = Database.getInstance();
         Set<Museum> museumsToAdd = new LinkedHashSet<>();
@@ -42,9 +37,9 @@ public class Main {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|");
                 switch (pathType) {
-                    case MUSEUMS -> processMuseumCommand(line, parts, database, museumsToAdd);
-                    case GROUPS -> processGroupCommand(line, parts, database, writer, outputFile);
-                    case LISTENER -> processListenerCommand(line, parts, database, writer);
+                    case MUSEUMS -> MuseumCmd(line, parts, database, museumsToAdd);
+                    case GROUPS -> GroupCmd(line, parts, database, writer, outputFile);
+                    case LISTENER -> ListenerCmd(line, parts, database, writer);
                 }
             }
 
@@ -67,7 +62,7 @@ public class Main {
         processFile(PathTypes.LISTENER, eventsPath);
     }
 
-    private static void processMuseumCommand(String line, String[] parts, Database database, Set<Museum> museumsToAdd) {
+    private static void MuseumCmd(String line, String[] parts, Database database, Set<Museum> museumsToAdd) {
         if (parts[0].equals("ADD MUSEUM")) {
 
             MuseumCommands command = new MuseumCommands();
@@ -75,7 +70,7 @@ public class Main {
             Museum museum_exception = null;
             long code = Long.parseLong(parts[1]);
             try {
-                command.addMuseum(line, database, museumsToAdd);
+                command.addMuseum(line, database);
                 museum_print = new Museum.MuseumBuilder(parts[2], code, 0, null).build();
                 museumsToAdd.add(museum_print);
 
@@ -87,11 +82,10 @@ public class Main {
                 museumsToAdd.add(museum_print);
             }
 
-            System.out.println(museum_print.getCode() + ": " + museum_print.getName());
         }
     }
 
-    private static void processGroupCommand(String line, String[] parts, Database database, BufferedWriter writer, String namefile) throws IOException {
+    private static void GroupCmd(String line, String[] parts, Database database, BufferedWriter writer, String namefile) throws IOException {
         if (parts[0].equals("ADD MEMBER")) {
             GroupCommand command = new GroupCommand();
             try {
@@ -142,10 +136,8 @@ public class Main {
         }
     }
 
-    private static void processListenerCommand(String line, String[] parts, Database database, BufferedWriter writer) throws IOException {
+    private static void ListenerCmd(String line, String[] parts, Database database, BufferedWriter writer) throws IOException {
         if (parts[0].equals("ADD EVENT")) {
-           String filename = "events_01.out";
-            System.out.println(writer + " ana are mere");
             try {
                 Long codeParse = Long.parseLong(parts[1]);
                 String message = parts[2];

@@ -57,7 +57,5 @@
             } catch (IOException e) {
                 System.err.println("Error writing to file: " + e.getMessage());
             }
-
-            System.out.println(message + " test 7");
         }
     }

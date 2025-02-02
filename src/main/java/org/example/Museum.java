@@ -140,9 +140,6 @@ public class Museum implements Subject{
             return this;
         }
 
-        public int getError() {
-            return error;
-        }
 
         public Museum build() {
             return new Museum(this);
@@ -157,54 +154,18 @@ public class Museum implements Subject{
         return code;
     }
 
-    public long getSupervisorCode() {
-        return supervisorCode;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public Person getManager() {
-        return manager;
-    }
-
-    public Integer getFoundingYear() {
-        return foundingYear;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public String getFax() {
-        return fax;
-    }
-
     public String getEmail() {
         return email;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public String getProfile() {
-        return profile;
-    }
-
-    public String getCategory() {
-        return category;
-    }
 
 }
 
 class MuseumCommands {
-    public void addMuseum(String line, Database database, Set<Museum> museumsToAdd) {
+    public void addMuseum(String line, Database database) {
         Museum museum = null;
             String[] parts = line.split("\\|");
             if (parts.length > 0) {
-                System.out.println("Comandă: " + parts[0]);
 
                 String code_string = parts[1];
                 long code = Long.parseLong(code_string);
